@@ -7,6 +7,42 @@
 #include "polesEnum.h"
 #include "calculator.h"
 #include "passTypeEnum.h"
+#include <regex>
+
+
+#define MAIN_MENU 1
+#define FILTER_TYPE 2
+#define RC_TYPE 3
+#define RL_TYPE 4
+#define RLC_TYPE 5
+
+void ralph_main_menu();
+int get_user_input();
+void select_menu_item(int input, int menuType);
+void print_menu(int menuType);
+void go_back_to_main_menu();
+bool is_integer(std::string num);
+
+void menu_item_1();
+void menu_item_2();
+void menu_item_3();
+void menu_item_4();
+
+void filter_type_rc();
+void filter_type_rl();
+void filter_type_rlc();
+
+void low_pass_rc();
+void high_pass_rc();
+
+void low_pass_rl();
+void high_pass_rl();
+
+void low_pass_rlc();
+void high_pass_rlc();
+void band_pass_rlc();
+
+
 using namespace std;
 
 
@@ -50,16 +86,17 @@ std::map<POLESEnum, std::vector<float> > CHEBYSHEV20HPNFactors;
 
 
 void setupFilterVals();
-void kabeerMain();
+void kabeer_main_menu();
 std::vector<float> pickNormalisingFactor(POLESEnum poles, FILTEREnum filter, PassTypeEnum passType);
 
 int main(){
-    kabeerMain();
+    kabeer_main_menu();
+    ralph_main_menu();
 
     return 0;
 }
 
-void kabeerMain() {
+void kabeer_main_menu() {
 
     int inputFilterType;
     int inputPassType;
@@ -414,4 +451,359 @@ std::vector<float> pickNormalisingFactor(POLESEnum poles, FILTEREnum filter, Pas
             }
             break;
     }
+}
+
+void ralph_main_menu() {
+  print_menu(MAIN_MENU);
+  int input = get_user_input();
+  select_menu_item(input, MAIN_MENU);
+}
+
+int get_user_input() {
+  int input;
+  std::string input_string;
+  bool valid_input = false;
+  int menu_items = 5;
+
+  do {
+    std::cout << "\nSelect item: ";
+    std::cin >> input_string;
+    valid_input = is_integer(input_string);
+    // if input is not an integer, print an error message
+    if (valid_input == false) {
+      std::cout << "Enter an integer!\n";
+    } else {  // if it is an int, check whether in range
+      input = std::stoi(input_string);  // convert to int
+      if (input >= 1 && input <= menu_items) {
+        valid_input = true;
+      } else {
+        std::cout << "Invalid menu item!\n";
+        valid_input = false;
+      }
+    }
+  } while (valid_input == false);
+
+  return input;
+}
+
+void select_menu_item(int input, int menuType) {
+    switch(menuType) {
+        case MAIN_MENU:
+            switch (input) {
+                case 1:
+                    menu_item_1();
+                    break;
+                case 2:
+                    menu_item_2();
+                    break;
+                case 3:
+                    menu_item_3();
+                    break;
+                case 4:
+                    menu_item_4();
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
+            break;
+
+        case FILTER_TYPE:
+            switch (input) {
+                case 1:
+                    filter_type_rc();
+                    break;
+                case 2:
+                    filter_type_rl();
+                    break;
+                case 3:
+                    filter_type_rlc();
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
+            break;
+
+        case RC_TYPE:
+            switch (input) {
+                case 1:
+                    low_pass_rc();
+                    break;
+                case 2:
+                    high_pass_rc();
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
+            break;
+
+        case RL_TYPE:
+            switch (input) {
+                case 1:
+                    low_pass_rl();
+                    break;
+                case 2:
+                    high_pass_rl();
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
+            break;
+
+        case RLC_TYPE:
+            switch (input) {
+                case 1:
+                    low_pass_rlc();
+                    break;
+                case 2:
+                    high_pass_rlc();
+                    break;
+                    break;
+                case 3:
+                    band_pass_rlc();
+                    break;
+                default:
+                    exit(1);
+                    break;
+            }
+            break;
+
+        default:
+            exit(1);
+            break;
+    }
+}
+
+void print_menu(int menuType) {
+    switch(menuType) {
+        case MAIN_MENU:
+            std::cout << "Main menu\n";
+            std::cout << "1. Menu item 1\n";
+            std::cout << "2. Menu item 2\n";
+            std::cout << "3. Menu item 3\n";
+            std::cout << "4. Menu item 4\n";
+            std::cout << "5. Exit\n";
+            break;
+
+        case FILTER_TYPE:
+            std::cout<< "Select filter type:\n";
+            std::cout << "1. RC Filter\n";
+            std::cout << "2. RL Filter\n";
+            std::cout << "3. RLC Filter\n";
+            break;
+
+        case RC_TYPE:
+            std::cout<< "Select RC filter type:\n";
+            std::cout << "1. Low-pass\n";
+            std::cout << "2. High-pass\n";
+            break;
+
+        case RL_TYPE:
+            std::cout<< "Select RL filter type:\n";
+            std::cout << "1. Low-pass\n";
+            std::cout << "2. High-pass\n";
+            break;
+
+        case RLC_TYPE:
+            std::cout<< "Select RLC filter type:\n";
+            std::cout << "1. Low-pass\n";
+            std::cout << "2. High-pass\n";
+            std::cout << "3. Band-pass\n";
+            break;
+
+        default:
+            exit(1);
+            break;
+    }
+}
+
+void go_back_to_main() {
+  std::string input;
+  do {
+    std::cout << "\nEnter 'b' or 'B' to go back to main menu: ";
+    std::cin >> input;
+  } while (input != "b" && input != "B");
+  ralph_main_menu();
+}
+
+// https://codereview.stackexchange.com/questions/162569/checking-if-each-char-in-a-string-is-a-decimal-digit
+bool is_integer(std::string num) {
+  return std::regex_match(num, std::regex("[+-]?[0-9]+"));
+}
+
+void menu_item_1() {
+  print_menu(FILTER_TYPE);
+  int input = get_user_input();
+  select_menu_item(input, FILTER_TYPE);
+  go_back_to_main();
+}
+void menu_item_2() {
+  std::cout << "\n>> Menu 2\n";
+  std::cout << "\nSome code here does something useful\n";
+  // you can call a function from here that handles menu 2
+  go_back_to_main();
+}
+void menu_item_3() {
+  std::cout << "\n>> Menu 3\n";
+  std::cout << "\nSome code here does something useful\n";
+  // you can call a function from here that handles menu 3
+  go_back_to_main();
+}
+void menu_item_4() {
+  std::cout << "\n>> Menu 4\n";
+  std::cout << "\nSome code here does something useful\n";
+  // you can call a function from here that handles menu 4
+  go_back_to_main();
+}
+
+void filter_type_rc() {
+  print_menu(RC_TYPE);
+  int input = get_user_input();
+  select_menu_item(input, RC_TYPE);
+  go_back_to_main();
+}
+void filter_type_rl() {
+  print_menu(RL_TYPE);
+  int input = get_user_input();
+  select_menu_item(input, RL_TYPE);
+  go_back_to_main();
+}
+void filter_type_rlc() {
+  print_menu(RLC_TYPE);
+  int input = get_user_input();
+  select_menu_item(input, RLC_TYPE);
+  go_back_to_main();
+}
+
+void low_pass_rc() {
+float w = 0;
+float r = 0;
+float c = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+  if (std::cin.fail()) {
+    // Print a message if the input is not a float
+    std::cout << "Invalid input. Please enter a float number.\n" ;
+  }
+
+std::cout << "Enter capacitance (C):\n";
+std::cin >> c;
+std::cout << "Input angular cutoff frequency value (ω):\n";
+std::cin >> w;
+float m = w * r * c;
+float p = pow(m, 2.0);
+float a = 1 + p;
+float s = sqrt(a);
+float n = 1 / s;
+std::cout << "The calculated gain is " << n << std::endl;
+
+  
+}
+void high_pass_rc() {
+float w = 0;
+float r = 0;
+float c = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+std::cout << "Enter capacitance (C):\n";
+std::cin >> c;
+std::cout << "Input angular cutoff frequency value (ω):\n";
+std::cin >> w;
+float m = w * r * c;
+float p = pow(m, 2.0);
+float a = 1 + p;
+float s = sqrt(a);
+float n = m / s;
+std::cout << "The calculated gain is " << n << std::endl;
+}
+
+void low_pass_rl() {
+float w = 0;
+float r = 0;
+float l = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+std::cout << "Enter inductance (L):\n";
+std::cin >> l;
+std::cout << "Enter capacitance (C):\n";
+std::cin >> w;
+float m = w  * l;
+float p = pow(m, 2.0);
+float a = pow(r,2.0) + p;
+float s = sqrt(a);
+float n = r / s;
+std::cout << "The calculated gain is " << n << std::endl;
+}
+void high_pass_rl() {
+
+float w = 0;
+float r = 0;
+float l = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+std::cout << "Enter inductance (L):\n";
+std::cin >> l;
+std::cout << "Enter capacitance (C):\n";
+std::cin >> w;
+float m = w  * l;
+float p = r + m;
+float n = r / p;
+std::cout << "The calculated gain is " << n << std::endl;
+
+}
+
+void low_pass_rlc() {
+float w = 0;
+float r = 0;
+float l = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+std::cout << "Enter inductance (L):\n";
+std::cin >> l;
+std::cout << "Enter angular cutoff frequency (ω):\n";
+std::cin >> w;
+float n = 1 / (1 + (w * l) / r);
+std::cout << "The calculated gain is " << n << std::endl;
+
+}
+void high_pass_rlc() {
+float w = 0;
+float r = 0;
+float l = 0;
+std::cout << "Enter resistance (R):\n";
+std::cin >> r;
+std::cout << "Enter inductance (L):\n";
+std::cin >> l;
+std::cout << "Enter angular cutoff frequency (ω):\n";
+std::cin >> w;
+float n = r / (r + w * l);
+std::cout << "The calculated gain is " << n << std::endl;
+
+}
+void band_pass_rlc() {
+double pi = 3.14159265359;
+float f = 0;
+float f1 = 0;
+float f2 = 0;
+float R = 0;
+float L = 0;
+float C = 0;
+std::  cout << "Enter resistance (R): ";
+std::cin >> R;
+std::cout << "Enter center frequency (f): ";
+std::cin >> f;
+std::cout << "Enter lower cutoff frequency (f1): ";
+std::cin >> f1;
+std::cout << "Enter upper cutoff frequency (f2): ";
+std::cin >> f2;
+std::cout << "Enter inductance (L): ";
+std::cin >> L;
+std::cout << "Enter capacitance (C): ";
+std::cin >> C;
+double n = (R / (2 * pi * L)) * (1 / sqrt(1 + pow(f1/f, 2)) - 1 / sqrt(1 + pow(f2/f, 2)));
+std::cout << "The calculated gain is " << n << std::endl;
+
 }
